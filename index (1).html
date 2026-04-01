@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masood Hyder — Data & Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c10;
+    --bg2: #111318;
+    --bg3: #181b22;
+    --amber: #f0a500;
+    --amber-dim: rgba(240,165,0,0.12);
+    --amber-glow: rgba(240,165,0,0.06);
+    --text: #e8e6e0;
+    --muted: #6b7080;
+    --border: rgba(255,255,255,0.07);
+    --serif: 'Playfair Display', Georgia, serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 4rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,16,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--amber);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--amber); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 4rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: linear-gradient(to bottom, transparent 10%, black 40%, black 70%, transparent 100%);
+  }
+  .hero-accent {
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s ease forwards;
+  }
+  .hero-name {
+    font-family: var(--serif);
+    font-size: clamp(4rem, 9vw, 9rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+  }
+  .hero-name span { color: var(--amber); }
+  .hero-desc {
+    max-width: 560px;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s ease forwards;
+  }
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s ease forwards;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    background: var(--amber);
+    color: #0a0c10;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--amber); color: var(--amber); }
+  .hero-stats {
+    position: absolute;
+    right: 4rem;
+    bottom: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s ease forwards;
+  }
+  .stat { text-align: right; }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 1; }
+
+  .section-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 6rem 4rem;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 3rem;
+  }
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--amber);
+    margin: 1rem 0 3rem;
+  }
+
+  /* ── ABOUT ── */
+  #about { background: var(--bg2); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .about-text p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.8;
+  }
+  .about-text p strong { color: var(--text); font-weight: 500; }
+  .about-info { display: flex; flex-direction: column; gap: 0; }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .info-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .info-value { color: var(--text); font-weight: 400; }
+  .info-value a { color: var(--amber); text-decoration: none; }
+  .info-value a:hover { text-decoration: underline; }
+
+  /* ── SKILLS ── */
+  #skills { background: var(--bg); }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .skill-card {
+    background: var(--bg);
+    padding: 2rem 1.75rem;
+    transition: background 0.2s;
+  }
+  .skill-card:hover { background: var(--bg3); }
+  .skill-card-icon {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    color: var(--amber);
+    margin-bottom: 1rem;
+  }
+  .skill-card-title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .skill-card:hover .tag { border-color: rgba(240,165,0,0.3); color: var(--text); }
+
+  /* ── EXPERIENCE ── */
+  #experience { background: var(--bg2); }
+  .exp-list { display: flex; flex-direction: column; gap: 0; }
+  .exp-item {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .exp-item::before {
+    content: '';
+    position: absolute;
+    left: 200px;
+    top: 2.5rem;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    transform: translate(-50%, 6px);
+  }
+  .exp-meta {}
+  .exp-date {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .exp-company {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .exp-content {}
+  .exp-role {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .exp-bullets li {
+    font-size: 0.9rem;
+    color: var(--muted);
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.6;
+  }
+  .exp-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--amber);
+    font-family: var(--mono);
+  }
+  .exp-bullets li strong { color: var(--text); font-weight: 500; }
+
+  /* ── PROJECTS ── */
+  #projects { background: var(--bg); }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .project-card {
+    background: var(--bg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .project-card:hover { background: var(--bg3); }
+  .project-card:hover::before { transform: scaleX(1); }
+  .project-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+  }
+  .project-title {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .project-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.7;
+    flex: 1;
+  }
+  .project-stack { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; }
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--amber);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: gap 0.2s;
+  }
+  .project-link:hover { gap: 0.7rem; }
+
+  /* ── EDUCATION ── */
+  #education { background: var(--bg2); }
+  .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5px; background: var(--border); border: 1px solid var(--border); }
+  .edu-card { background: var(--bg2); padding: 2rem 2rem; }
+  .edu-degree {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .edu-school {
+    font-size: 0.9rem;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+  }
+  .edu-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .edu-notes { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .edu-notes span { color: var(--amber); }
+
+  /* ── CONTACT ── */
+  #contact { background: var(--bg); border-top: 1px solid var(--border); }
+  .contact-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 6rem 4rem;
+    text-align: center;
+  }
+  .contact-inner .section-label { justify-content: center; display: flex; }
+  .contact-title {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 0.5rem 0 1.5rem;
+  }
+  .contact-subtitle { color: var(--muted); margin-bottom: 2.5rem; font-size: 0.95rem; }
+  .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.25rem; }
+    #hero { padding: 0 1.5rem 4rem; }
+    .hero-stats { display: none; }
+    .section-inner { padding: 4rem 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .exp-item::before { display: none; }
+    .edu-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">MH_</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-accent"></div>
+  <div class="hero-label">Data & Analytics Engineer — Dallas, TX</div>
+  <h1 class="hero-name">Masood<br><span>Hyder.</span></h1>
+  <p class="hero-desc">I connect raw operational data to the decisions that matter, through pipelines designed to scale, dashboards built for action, and analysis that earns trust.</p>
+  <div class="hero-cta">
+    <a href="#projects" class="btn-primary">View My Work</a>
+    <a href="#contact" class="btn-secondary">Get In Touch</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">ETL</div>
+      <div class="stat-label">Pipeline Design</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">20+</div>
+      <div class="stat-label">API connectors built</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$200K</div>
+      <div class="stat-label">Revenue enabled</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-label">// 01 — About</div>
+    <h2 class="section-title">The story so far</h2>
+    <div class="divider"></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm a <strong>BI and analytics professional</strong> with 2+ years of hands-on experience building data systems that span ETL pipelines to self-service dashboards, all in service of real business outcomes.</p>
+        <p>At <strong>Astera Software</strong>, I led solutions engineering conversations with 16 prospects, translating their data challenges into product demonstrations that contributed to over $200K in revenue. I also hold a <strong>3.70 GPA</strong> in my MS in Business Analytics & AI at UT Dallas.</p>
+        <p>My work sits at the intersection of engineering and insight: I care about clean pipelines, but I care equally about whether the end user actually understands the data I'm presenting.</p>
+      </div>
+      <div class="about-info">
+        <div class="info-row">
+          <span class="info-label">Location</span>
+          <span class="info-value">Dallas, TX</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value"><a href="/cdn-cgi/l/email-protection#0c616d7f63636822647568697e4c7978686d60606d7f22696879"><span class="__cf_email__" data-cfemail="6904081a06060d4701100d0c1b291c1d0d080505081a470c0d1c">[email&#160;protected]</span></a></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">LinkedIn</span>
+          <span class="info-value"><a href="https://linkedin.com/in/masoodh" target="_blank">linkedin.com/in/masoodh</a></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">GitHub</span>
+          <span class="info-value"><a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Status</span>
+          <span class="info-value" style="color: #4ade80;">Open to opportunities</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Focus areas</span>
+          <span class="info-value">Data Engineering · BI · Analytics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-inner">
+    <div class="section-label">// 02 — Skills</div>
+    <h2 class="section-title">What I work with</h2>
+    <div class="divider"></div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-card-icon">⬡</div>
+        <div class="skill-card-title">Languages</div>
+        <div class="skill-tags">
+          <span class="tag">SQL</span>
+          <span class="tag">Python</span>
+          <span class="tag">R</span>
+          <span class="tag">STATA</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">◈</div>
+        <div class="skill-card-title">BI & Visualization</div>
+        <div class="skill-tags">
+          <span class="tag">Power BI</span>
+          <span class="tag">Tableau</span>
+          <span class="tag">Excel</span>
+          <span class="tag">KNIME</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">◎</div>
+        <div class="skill-card-title">Data Engineering</div>
+        <div class="skill-tags">
+          <span class="tag">ETL Pipelines</span>
+          <span class="tag">SSIS</span>
+          <span class="tag">REST APIs</span>
+          <span class="tag">Data Modeling</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">⬡</div>
+        <div class="skill-card-title">Databases</div>
+        <div class="skill-tags">
+          <span class="tag">SQL Server</span>
+          <span class="tag">Snowflake</span>
+          <span class="tag">BigQuery</span>
+          <span class="tag">MongoDB</span>
+          <span class="tag">HDFS</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">◈</div>
+        <div class="skill-card-title">Cloud & DevOps</div>
+        <div class="skill-tags">
+          <span class="tag">AWS</span>
+          <span class="tag">Azure</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">CI/CD</span>
+          <span class="tag">Azure DevOps</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">◎</div>
+        <div class="skill-card-title">Domain Expertise</div>
+        <div class="skill-tags">
+          <span class="tag">Process Improvement</span>
+          <span class="tag">KPI Reporting</span>
+          <span class="tag">Data Governance</span>
+          <span class="tag">QA & Testing</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="section-inner">
+    <div class="section-label">// 03 — Experience</div>
+    <h2 class="section-title">Where I've worked</h2>
+    <div class="divider"></div>
+    <div class="exp-list">
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">Jan 2023 — Jul 2024</div>
+          <div class="exp-company">Astera Software</div>
+        </div>
+        <div class="exp-content">
+          <div class="exp-role">Associate Data Solutions Engineer</div>
+          <ul class="exp-bullets">
+            <li>Designed and deployed end-to-end <strong>ETL pipelines</strong> for a professional services project, automating data flows across multiple systems and cutting manual processing time by <strong>45%</strong>.</li>
+            <li>Built <strong>20+ REST API connectors</strong> integrating Astera's data management stack with CRM and inventory platforms, reducing client integration time.</li>
+            <li>Conducted discovery calls with 16 prospects, resulting in <strong>5 client onboardings and over $200K in revenue</strong>.</li>
+            <li>Built <strong>Power BI dashboards</strong> with SQL-based data models to track KPIs, analyze trends, and reduce reporting turnaround by 30%.</li>
+            <li>Improved self-service reporting, reducing manual support requests by <strong>60%</strong> through better documentation and metric definitions.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">Jun 2022 — Dec 2022</div>
+          <div class="exp-company">Astera Software</div>
+        </div>
+        <div class="exp-content">
+          <div class="exp-role">Associate QA & Testing Engineer</div>
+          <ul class="exp-bullets">
+            <li>Devised and maintained comprehensive <strong>QA test plans</strong> on Azure DevOps for API deployment features, reducing post-release bugs by <strong>30%</strong>.</li>
+            <li>Automated regression tests for API workflows and ETL integrations using Postman, increasing coverage and cutting manual QA effort by <strong>50%</strong>.</li>
+            <li>Partnered with development and sales teams to resolve bugs, reducing customer-reported platform issues by <strong>25%</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-label">// 04 — Projects</div>
+    <h2 class="section-title">Selected work</h2>
+    <div class="divider"></div>
+    <div class="projects-grid">
+
+      <!-- PROJECT 1 — already exists -->
+      <div class="project-card">
+        <div class="project-num">Project 01</div>
+        <div class="project-title">Fleet Safety & Risk Analytics Pipeline</div>
+        <p class="project-desc">Scalable ETL pipeline on HDFS to ingest, validate, and process 500K+ multi-source records using Impala. Power BI dashboards with heatmaps and drill-down visuals identified the top 3 incident drivers across 12 risk variables.</p>
+        <div class="project-stack">
+          <span class="tag">HDFS</span>
+          <span class="tag">Impala</span>
+          <span class="tag">Power BI</span>
+          <span class="tag">ETL</span>
+        </div>
+        <a href="https://github.com/yourusername/fleet-safety-pipeline" class="project-link" target="_blank">View on GitHub →</a>
+      </div>
+
+      <!-- PROJECT PLACEHOLDER 2 — Add your next project here -->
+      <div class="project-card" style="border: 1px dashed rgba(240,165,0,0.2); background: transparent;">
+        <div class="project-num" style="color: var(--muted);">Project 02</div>
+        <div class="project-title" style="color: var(--muted); font-style: italic;">Coming Soon</div>
+        <p class="project-desc" style="color: rgba(107,112,128,0.6);">Your next project will go here. Copy the project-card block above and fill in your details.</p>
+        <div class="project-stack">
+          <span class="tag" style="border-color: rgba(255,255,255,0.03); color: rgba(107,112,128,0.4);">+ add project</span>
+        </div>
+      </div>
+
+      <!-- PROJECT PLACEHOLDER 3 -->
+      <div class="project-card" style="border: 1px dashed rgba(240,165,0,0.2); background: transparent;">
+        <div class="project-num" style="color: var(--muted);">Project 03</div>
+        <div class="project-title" style="color: var(--muted); font-style: italic;">Coming Soon</div>
+        <p class="project-desc" style="color: rgba(107,112,128,0.6);">More projects in progress. Building in public — check back soon.</p>
+        <div class="project-stack">
+          <span class="tag" style="border-color: rgba(255,255,255,0.03); color: rgba(107,112,128,0.4);">+ add project</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-inner">
+    <div class="section-label">// 05 — Education</div>
+    <h2 class="section-title">Academic background</h2>
+    <div class="divider"></div>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-degree">MS Business Analytics & AI</div>
+        <div class="edu-school">The University of Texas at Dallas</div>
+        <div class="edu-meta">Aug 2024 – Dec 2025 · Dallas, TX · GPA: 3.70 / 4.0</div>
+        <div class="edu-notes">
+          Coursework in Data Warehousing, ETL, Big Data, and Database Optimization.<br><br>
+          <span>Dean's Excellence Scholarship</span> · <span>JSOM McGregor Scholarship</span>
+        </div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">BS Economics</div>
+        <div class="edu-school">Institute of Business Administration, Karachi</div>
+        <div class="edu-meta">Aug 2018 – May 2022 · Karachi, Pakistan</div>
+        <div class="edu-notes">
+          Coursework in Applied Econometrics, Research Methods, Data Transformation, and Probability Distribution.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="section-label">// 06 — Contact</div>
+    <h2 class="contact-title">Let's build something.</h2>
+    <p class="contact-subtitle">Open to full-time roles in data engineering, analytics, and BI. Feel free to reach out directly.</p>
+    <div class="contact-links">
+      <a href="/cdn-cgi/l/email-protection#cda0acbea2a2a9e3a5b4a9a8bf8db8b9a9aca1a1acbee3a8a9b8" class="btn-primary">Send an Email</a>
+      <a href="https://linkedin.com/in/masoodh" target="_blank" class="btn-secondary">LinkedIn</a>
+      <a href="https://github.com/yourusername" target="_blank" cla
